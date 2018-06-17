@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const Usuario = require('../models/usuario');
 const bcryptjs = require('bcryptjs');
+const mdAuthenticacion = require('../middlewares/autenticacion');
 
 app.get('/', (req, res, next) => {
     Usuario.find({}, 'nombre email img role')
@@ -21,7 +22,7 @@ app.get('/', (req, res, next) => {
             });
 });
 
-app.post('/', (req, res) => {
+app.post('/', mdAuthenticacion.verifyToken, (req, res) => {
     const body = req.body;
     const usuario = new Usuario({
         nombre: body.nombre,
@@ -46,7 +47,7 @@ app.post('/', (req, res) => {
     });
 });
 
-app.put('/:id', (req, res) => {
+app.put('/:id', mdAuthenticacion.verifyToken, (req, res) => {
     const id = req.params.id;
     const body = req.body;
     Usuario.findById(id, (err, user) => {
@@ -85,7 +86,7 @@ app.put('/:id', (req, res) => {
     });
 });
 
-app.delete('/:id', (req, res) => {
+app.delete('/:id', mdAuthenticacion.verifyToken, (req, res) => {
     const id = req.params.id;
     Usuario.findOneAndRemove(id, (err, userRemoved) => {
         if (err) {
